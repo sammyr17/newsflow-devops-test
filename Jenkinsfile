@@ -51,7 +51,14 @@ pipeline {
 
         stage('Archive') {
             steps {
-                archiveArtifacts artifacts: "${LOG_DIR}/*-${ARTIFACT_TS}.log", fingerprint: true
+                // Copy logs from the absolute log directory into the workspace so that
+                // archiveArtifacts can find them using a workspace-relative pattern
+                sh """
+                    cp ${LOG_DIR}/*-${ARTIFACT_TS}.log .
+                """
+
+                // Archive the copied, timestamped log files from the workspace
+                archiveArtifacts artifacts: "*-${ARTIFACT_TS}.log", fingerprint: true
             }
         }
     }
